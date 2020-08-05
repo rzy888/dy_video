@@ -1,39 +1,50 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-
-import Index from '@/views/index.vue'
-import City from '@/views/city.vue'
-import Add from '@/views/add.vue'
-import News from '@/views/news.vue'
-import My from '@/views/my.vue'
+import Home from '../views/home.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    name: 'Index',
-    component: Index,
+    redirect: '/index',
   },
   {
-    path: '/city',
-    name: 'City',
-    component: City,
+    path: '/',
+    name: 'Home',
+    component: Home,
+    children: [
+      {
+        path: '/index',
+        name: 'Index',
+        component: () => import('../views/index.vue'),
+      },
+      {
+        path: '/city',
+        name: 'City',
+        component: () => import('../views/city.vue'),
+      },
+      {
+        path: '/add',
+        name: 'Add',
+        component: () => import('../views/add.vue'),
+      },
+      {
+        path: '/news',
+        name: 'News',
+        component: () => import('../views/news.vue'),
+      },
+      {
+        path: '/my',
+        name: 'My',
+        component: () => import('../views/my.vue'),
+      },
+    ],
   },
   {
-    path: '/add',
-    name: 'Add',
-    component: Add,
-  },
-  {
-    path: '/news',
-    name: 'News',
-    component: News,
-  },
-  {
-    path: '/my',
-    name: 'My',
-    component: My,
+    path: '/login',
+    name: 'Login',
+    component: () => import('../views/login.vue'),
   },
   // {
   //   path: '/about',
@@ -49,6 +60,19 @@ const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes,
+})
+// 全局导航守卫
+router.beforeEach((to, from, next) => {
+  const uname = window.localStorage.getItem('uname')
+  if (!uname) {
+    if (to.path == '/my' || to.path == '/news' || to.path == '/add' || to.path == '/city') {
+      next('/login')
+    } else {
+      next()
+    }
+  } else {
+    next()
+  }
 })
 
 export default router

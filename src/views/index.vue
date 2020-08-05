@@ -12,25 +12,31 @@
         <img src="@/assets/img/search.png" style="width:30px;padding-right:20px" />
       </div>
     </div>
+    <!-- 视频组件 -->
     <div class="videos">
-      <img src="https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=2438981516,3561412782&fm=26&gp=0.jpg" alt="" />
+      <Videos></Videos>
     </div>
   </div>
 </template>
 
 <script>
+import Videos from "@/components/Videos";
 export default {
+  components: {
+    Videos,
+  },
   data() {
     return {
       active: 1,
-    }
+    };
   },
+  created() {},
   methods: {
     addActive(a) {
-      this.active = a
+      this.active = a;
     },
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>
@@ -52,14 +58,16 @@ export default {
       display: flex;
       width: 40%;
       justify-content: space-around;
-
+      color: #ccd3c5;
+      font-weight: 800;
+      text-shadow: #ccc 1px 1px 1px;
       .active {
         color: #fff;
         position: relative;
 
         &:after {
           width: 20px;
-          content: '';
+          content: "";
           border: 1px solid #fff;
           position: absolute;
           bottom: 0;
@@ -72,9 +80,9 @@ export default {
   .videos {
     width: 100%;
     height: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
+    // position: fixed;
+    // top: 0;
+    // left: 0;
   }
 }
 </style>

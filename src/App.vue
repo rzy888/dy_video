@@ -1,18 +1,11 @@
 <template>
   <div id="app">
     <router-view />
-    <TabBar></TabBar>
   </div>
 </template>
 
 <script>
-import TabBar from '@/components/tabBar/TabBar.vue'
-
-export default {
-  components: {
-    TabBar,
-  },
-}
+export default {};
 </script>
 
 <style>
@@ -28,5 +21,14 @@ export default {
 a {
   text-decoration: none;
   color: #f5f5f5c5;
+}
+input,
+select,
+button {
+  border-style: none;
+  outline: none;
+}
+ul li {
+  list-style: none;
 }
 </style>
