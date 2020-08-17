@@ -1,18 +1,22 @@
 <template>
-  <div>
+  <div class="home">
     <router-view />
-    <TabBar></TabBar>
+    <TabBar class="bar"></TabBar>
   </div>
 </template>
 
 <script>
-import TabBar from "@/components/TabBar.vue";
+import TabBar from '@/components/TabBar.vue'
 export default {
   components: {
     TabBar,
   },
-};
+}
 </script>
 
-<style>
+<style lang="scss">
+.home {
+  width: 100%;
+  height: 100%;
+}
 </style>

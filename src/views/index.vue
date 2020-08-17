@@ -14,12 +14,13 @@
     </div>
     <!-- 视频组件 -->
     <div class="videos">
-      <Videos></Videos>
+      <Videos :videoList="videoList"></Videos>
     </div>
   </div>
 </template>
 
 <script>
+import { Indicator } from "mint-ui";
 import Videos from "@/components/Videos";
 export default {
   components: {
@@ -28,12 +29,56 @@ export default {
   data() {
     return {
       active: 1,
+      // 渲染视频列表
+      videoList: [],
+      // 关注视频列表
+      gzVideoList: [],
+      // 推荐视频列表
+      tjVideoList: [],
     };
   },
-  created() {},
+  created() {
+    this.getVideoList();
+    this.getVideoList2();
+  },
   methods: {
+    //  获取推荐视频列表
+    getVideoList() {
+      Indicator.open();
+      this.$http
+        .get("/videoList")
+        .then((res) => {
+          Indicator.close();
+          this.tjVideoList = res.data;
+          this.videoList = this.tjVideoList;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+    //  获取关注视频列表
+    getVideoList2() {
+      // 打开加载动画
+      Indicator.open();
+      this.$http
+        .get("/videoList2")
+        .then((res) => {
+          // 关闭加载动画
+          Indicator.close();
+          this.gzVideoList = res.data;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+    // 顶部导航切换
     addActive(a) {
       this.active = a;
+      if (a == 0) {
+        this.videoList = this.gzVideoList;
+      } else {
+        this.videoList = this.tjVideoList;
+      }
     },
   },
 };
@@ -42,6 +87,7 @@ export default {
 <style lang="scss" scoped>
 .index {
   height: 100%;
+  position: relative;
   .nav {
     height: 50px;
     width: 100%;
@@ -49,7 +95,7 @@ export default {
     justify-content: space-between;
     align-items: center;
     color: #f5f5f5c5;
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     z-index: 999;
@@ -80,9 +126,6 @@ export default {
   .videos {
     width: 100%;
     height: 100%;
-    // position: fixed;
-    // top: 0;
-    // left: 0;
   }
 }
 </style>

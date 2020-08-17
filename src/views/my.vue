@@ -1,10 +1,10 @@
 <template>
   <div>
-    <div class="my" :style="isShowRight?'transform: translateX(-200px);':''">
+    <div class="my" :style="isShowRight ? 'transform: translateX(-200px);' : ''">
       <!-- 头部按钮 -->
       <div class="top">
         <!-- 展开按钮 -->
-        <div @click="isShowRight = !isShowRight;">
+        <div @click="isShowRight = !isShowRight">
           <i class="iconfont">&#xe600;</i>
         </div>
       </div>
@@ -12,56 +12,75 @@
         <!-- 中间个人信息部分 -->
         <div class="my-info">
           <div class="my-avatar">
-            <img
-              class="avatar"
-              src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1596359813660&di=412d55978783be920b6cfeaf84b90566&imgtype=0&src=http%3A%2F%2Fcdn.duitang.com%2Fuploads%2Fitem%2F201508%2F20%2F20150820143413_Tsx8R.thumb.700_0.jpeg"
-              alt
-            />
-            <div>
-              编辑资料
-              <span>75%</span>
-            </div>
+            <img class="avatar" :src="myInfo.avatar" alt />
+            <router-link :to="{ path: '/edit', query: { myInfo } }">
+              <div>
+                编辑资料
+                <span>{{ $store.state.num || 0 }}%</span>
+              </div>
+            </router-link>
             <div>+好友</div>
           </div>
-          <div class="uname">朝阳</div>
-          <div>抖音号: 1899158662</div>
+          <div class="uname">{{ myInfo.name ||'抖音'}}</div>
+          <div>抖音号: {{ myInfo.dyId || '无' }}</div>
           <div>
             <span>商品橱窗</span>
-            <span>></span>
+            <i class="iconfont">&#xe630;</i>
           </div>
-          <div>此处是个人简介</div>
+          <div>{{ myInfo.introduction }}</div>
           <div>
-            <span>男</span>
-            <span>北京</span>
-            <span>+增加年龄、学校等标签</span>
+            <span>
+              <span class="tag" v-if="myInfo.sex == 1">男</span>
+              <span class="tag" v-else-if="myInfo.sex == 2">女</span>
+              <span class="tag" v-else>保密</span>
+            </span>
+            <span class="tag" v-show=" myInfo.city">{{ myInfo.city }}</span>
+            <router-link :to="{ path: '/edit', query: { myInfo } }">
+              <span class="tag">+增加年龄、学校等标签</span>
+            </router-link>
           </div>
           <div>
-            <b>55</b>
+            <b>{{ myInfo.zan || 0 }}</b>
             <span>赞</span>
-            <b>26</b>
+            <b>{{ myInfo.guanzhu || 0 }}</b>
             <span>关注</span>
-            <b>99</b>
+            <b>{{ myInfo.fensi || 0 }}</b>
             <span>粉丝</span>
           </div>
         </div>
         <!-- 作品视频导航 -->
         <div class="nav">
-          <div @click="handleClick(1)" :class="active==1?'active':''">作品 15</div>
-          <div @click="handleClick(2)" :class="active==2?'active':''">动态 17</div>
-          <div @click="handleClick(3)" :class="active==3?'active':''">喜欢 60</div>
+          <div @click="handleClick(1)" :class="active == 1 ? 'active' : ''">作品 {{zNum}}</div>
+          <div @click="handleClick(2)" :class="active == 2 ? 'active' : ''">动态 {{dNum}}</div>
+          <div @click="handleClick(3)" :class="active == 3 ? 'active' : ''">喜欢 {{loveNum}}</div>
         </div>
         <!-- 底部作品列表 -->
         <div class="video-list">
-          <ul>
-            <li v-for="(item,index) in vidoList" :key="index">{{item}}</li>
+          <!-- 作品和喜欢 -->
+          <ul v-if="active!=2">
+            <li @click="clickMyVideo" v-for="(item) in vidoList" :key="item.id">
+              <img v-lazy="item.img" alt />
+            </li>
           </ul>
-          <div class="bottom">暂时没有更多了</div>
+          <!-- 动态 -->
+          <ul v-else class="dynamic">
+            <li @click="clickMyVideo" v-for="(item, index) in vidoList" :key="index">
+              <div class="user">
+                <img class="avatar" :src="item.avatar" alt />
+                <span>{{myInfo.name}}</span>
+              </div>
+              <div class="dynamic-video">
+                <img v-lazy="item.img" alt />
+              </div>
+            </li>
+          </ul>
+          <div class="bottom">{{nullText}}</div>
         </div>
       </div>
     </div>
     <div v-if="isShowRight" class="right">
       <ul>
-        <li>
+        <!-- <li>
           <i class="iconfont">&#xe602;</i>我的订单
         </li>
         <li>
@@ -72,7 +91,7 @@
         </li>
         <li>
           <i class="iconfont">&#xe609;</i>设置
-        </li>
+        </li>-->
         <li @click="LoginOut" class="out">
           <i class="iconfont">&#xeb37;</i>退出登录
         </li>
@@ -82,17 +101,73 @@
 </template>
 
 <script>
+import { Lazyload, Indicator } from "mint-ui";
+
 export default {
   data() {
     return {
-      vidoList: [1, 2, 3, 4, 5, 6, 7],
+      // 用于渲染视频列表
+      vidoList: [],
       active: 1,
       isShowRight: false,
+      myInfo: {},
+      zNum: 0,
+      dNum: 0,
+      loveNum: 0,
+      // 所有视频列表
+      videoListAll: {},
+      nullText: "",
     };
   },
+  created() {
+    // 获取我的信息
+    this.myInfo = this.$store.state.myInfo;
+    // 获取我的视频
+    this.getMyVideoList();
+  },
   methods: {
+    // 点击我的视频
+    clickMyVideo() {
+      this.$router.push({
+        path: "/myVideo",
+        query: { video: this.vidoList },
+      });
+    },
+    // 切换作品动态喜欢
     handleClick(i) {
       this.active = i;
+      if (i == 1) {
+        this.vidoList = this.videoListAll.myVideoList;
+      }
+      if (i == 2) {
+        this.vidoList = this.videoListAll.dynamicList;
+      }
+      if (i == 3) {
+        this.vidoList = this.videoListAll.loveList;
+      }
+    },
+    // 获取我的视频
+    getMyVideoList() {
+      Indicator.open();
+      this.$http
+        .get("/myVideo")
+        .then((res) => {
+          Indicator.close();
+          this.nullText = "暂无更多视频";
+          if (this.myInfo.name == undefined) {
+            this.videoListAll = [];
+          } else {
+            this.videoListAll = res.data;
+            // 默认展示我的作品和数量
+            this.vidoList = this.videoListAll.myVideoList;
+            this.zNum = this.videoListAll.myVideoList.length;
+            this.dNum = this.videoListAll.dynamicList.length;
+            this.loveNum = this.videoListAll.loveList.length;
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
     // 退出登录
     LoginOut() {
@@ -167,7 +242,7 @@ export default {
           + div {
             height: 30px;
             color: #e0d35a;
-            font-size: 60%;
+            font-size: 80%;
             margin: 10px 0;
             border-top: 1px solid #c3c3c317;
             border-bottom: 1px solid #c3c3c317;
@@ -184,18 +259,20 @@ export default {
                 height: 25px;
                 line-height: 25px;
                 font-size: 60%;
-                margin-top: 5px;
-                span {
+                margin-top: 10px;
+                .tag {
+                  height: 25px;
+                  max-width: 100px;
                   margin-right: 10px;
-                  margin-top: 5px;
                   background-color: #665f5f4d;
                   padding: 0 5px;
                   border-radius: 2px;
+                  overflow: hidden;
                 }
 
                 + div {
                   font-size: 90%;
-                  margin-top: 10px;
+                  margin-top: 15px;
                   span {
                     color: #f0e6e688;
                     margin-right: 10px;
@@ -229,14 +306,46 @@ export default {
     .video-list {
       ul {
         display: flex;
-        justify-content: space-between;
         flex-wrap: wrap;
         margin: 2px 0;
         li {
           width: 33%;
           height: 150px;
-          background-color: #c8aac434;
-          margin-bottom: 1px;
+          margin: 0.5px 0.5px;
+          img {
+            width: 100%;
+            height: 100%;
+          }
+        }
+      }
+      .dynamic {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        margin: 2px 0;
+        li {
+          width: 90%;
+          height: 390px;
+          margin-bottom: 20px;
+          border-bottom: 1px solid #34353a;
+          .user {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            .avatar {
+              width: 50px;
+              height: 50px;
+              border-radius: 50%;
+              margin-right: 20px;
+            }
+          }
+          .dynamic-video {
+            width: 100%;
+            height: 300px;
+            border-radius: 2px;
+            background-color: #c8aac434;
+          }
         }
       }
       .bottom {

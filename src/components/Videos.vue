@@ -1,21 +1,27 @@
 <template>
   <div class="videosList">
     <swiper class="swiperBox" :options="swiperOption">
-      <swiper-slide class="swiper-slide" v-for="(item, index) in videoList" :key="index">
+      <swiper-slide class="swiper-slide" v-for="(item, index) in videoList" :key="item.id">
         <!-- 视频组件 -->
         <div>
-          <VideoPlay ref="videos" :videoList="item" :index="index"></VideoPlay>
+          <VideoPlay ref="videos" :videoList="videoList[vi] || item" :index="index"></VideoPlay>
+        </div>
+        <!-- 视频详情组件 -->
+        <div class="video-info">
+          <video-info :videoList="item"></video-info>
+        </div>
+        <!-- 视频右边头像和导航 -->
+        <div class="right">
+          <right-nav
+            :isClickRight="isClickRight"
+            @clickRight="clickRight"
+            :videoList="item"
+            :comment="comment"
+            @changeCommentOpen="changeCommentOpen"
+          ></right-nav>
         </div>
       </swiper-slide>
     </swiper>
-    <!-- 视频详情组件 -->
-    <div class="video-info">
-      <video-info></video-info>
-    </div>
-    <!-- 视频右边头像和导航 -->
-    <div class="right">
-      <right-nav :comment="comment" @changeCommentOpen="changeCommentOpen"></right-nav>
-    </div>
     <!-- 评论组件 -->
     <transition name="up">
       <div v-if="comment" class="comment-info">
@@ -42,8 +48,10 @@ export default {
     RightNav,
     Comment,
   },
+  props: ["videoList", "videoIndex"],
   data() {
     return {
+      vi: this.videoIndex,
       page: 1,
       // 轮播图组件的配置项
       swiperOption: {
@@ -57,9 +65,11 @@ export default {
         height: window.innerHeight, // 高度设置，占满设备高度
         resistanceRatio: 0, //抵抗率。边缘抵抗力的大小比例。值越小抵抗越大越难将slide拖离边缘，0时完全无法拖离。本业务需要
         observeParents: true, //将observe应用于Swiper的父元素。当Swiper的父元素变化时，例如window.resize，Swiper更新
+
         on: {
           // 点击事件
           tap: () => {
+            this.isClickRight = false;
             this.playAction(this.page - 1);
           },
           //向下翻页事件
@@ -76,41 +86,34 @@ export default {
           },
         },
       },
-      //视频列表
-      videoList: [
-        {
-          id: 1,
-          url:
-            "https://vdse.bdstatic.com/4437b9d40bedbec8c24c3c3d701d1f59.mp4?authorization=bce-auth-v1%2F40f207e648424f47b2e3dfbb1014b1a5%2F2017-05-11T09%3A02%3A31Z%2F-1%2F%2Ff54b3fbae192ca87b15d592159c1276cc90e1a837dc7626028284a15eb6c0d40",
-        },
-        {
-          id: 2,
-          url:
-            "https://vdse.bdstatic.com/217108b1f6b93caf856d23ecf99a01c0.mp4?authorization=bce-auth-v1%2Ffb297a5cc0fb434c971b8fa103e8dd7b%2F2017-05-11T09%3A02%3A31Z%2F-1%2F%2F7235f7f72fa9881e763723a07d9a05f089a2b730a083d4663ec92926130d8147",
-        },
-        {
-          id: 3,
-          url:
-            "https://vdse.bdstatic.com/d95c9012700c69e75dbbc73b8c226eeb.mp4?authorization=bce-auth-v1%2Ffb297a5cc0fb434c971b8fa103e8dd7b%2F2017-05-11T09%3A02%3A31Z%2F-1%2F%2F814f8be3a709978557d4e0a7cf509c9a23957ca5eb6a04961cb86c4b4b4a20db",
-        },
-      ],
       comment: false,
+      isClickRight: false,
     };
   },
   methods: {
+    // 点击了右边导航
+    clickRight(value) {
+      this.isClickRight = value;
+    },
     // 点击事件
     playAction(index) {
-      this.$refs.videos[index].playOrStop();
-      this.comment = false;
+      setTimeout(() => {
+        // 打开评论和点赞不需要暂停视频
+        if (!this.isClickRight) {
+          this.$refs.videos[index].playOrStop();
+        }
+      }, 100);
     },
     // 上一个视频
     prevVideo(index) {
+      this.comment = false;
       // 暂停下一个播放当前视频
       this.$refs.videos[index + 1].stop();
       this.$refs.videos[index].play();
     },
     // 下一个视频
     nextVideo(index) {
+      this.comment = false;
       // 暂停上一个播放当前视频
       this.$refs.videos[index - 1].stop();
       this.$refs.videos[index].play();
@@ -122,15 +125,17 @@ export default {
     // 关闭评论
     changeCommentClose(value) {
       this.comment = value;
+      this.isClickRight = value;
     },
   },
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scope>
 .videosList {
   width: 100%;
   height: 100%;
+  position: relative;
 
   .swiper-wrapper {
     width: 100%;
@@ -157,28 +162,29 @@ export default {
     z-index: 999;
   }
   .right {
-    position: fixed;
+    position: absolute;
     width: 50px;
     bottom: 60px;
     right: 10px;
     z-index: 999;
   }
   .comment-info {
-    position: fixed;
+    position: absolute;
     width: 100%;
+    height: 100%;
     bottom: 50px;
     left: 0;
     z-index: 999;
   }
 }
 /* 设置持续时间和动画函数 */
-.up-enter-active,
-.up-leave-active {
-  transition: all 0.3s;
-}
-.up-enter,
-.up-leave-to {
-  transform: translateY(100%);
-  opacity: 1;
-}
+// .up-enter-active,
+// .up-leave-active {
+//   transition: all 0.3s;
+// }
+// .up-enter,
+// .up-leave-to {
+//   transform: translateY(100%);
+//   opacity: 1;
+// }
 </style>

@@ -4,7 +4,7 @@
       <router-link :class="active == 0 ? 'active' : ''" to="/">首页</router-link>
     </div>
     <div @click="addActive(1)">
-      <router-link :class="active == 1 ? 'active' : ''" to="/city">北京</router-link>
+      <router-link :class="active == 1 ? 'active' : ''" to="/city">同城</router-link>
     </div>
     <div>
       <router-link to="/add">
@@ -35,7 +35,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scope>
 .tab-bar {
   display: flex;
   width: 100%;
@@ -43,11 +43,13 @@ export default {
   background-color: #000;
   justify-content: space-around;
   align-items: center;
-  // font-size: 15px;
   position: fixed;
   bottom: 0;
   left: 0;
   z-index: 999;
+  a {
+    color: #fffdfd9f;
+  }
   .active {
     color: #fff;
   }

@@ -1,0 +1,33 @@
+body {
+  min-width: 320px;
+  /* max-width: 500px; */
+  margin: 0 auto;
+}
+@media screen and (min-width: 500px) {
+  html {
+    font-size: 20px !important;
+  }
+}
+
+#app {
+  height: 100%;
+  background-color: #161824;
+  color: #fff;
+}
+* {
+  margin: 0;
+  padding: 0;
+}
+a {
+  text-decoration: none;
+  color: #ffffff;
+}
+input,
+select,
+button {
+  border-style: none;
+  outline: none;
+}
+ul li {
+  list-style: none;
+}

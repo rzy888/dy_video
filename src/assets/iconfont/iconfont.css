@@ -1,11 +1,11 @@
 @font-face {
   font-family: 'iconfont'; /* project id 1980695 */
-  src: url('//at.alicdn.com/t/font_1980695_xo26ddrbo8.eot');
-  src: url('//at.alicdn.com/t/font_1980695_xo26ddrbo8.eot?#iefix') format('embedded-opentype'),
-    url('//at.alicdn.com/t/font_1980695_xo26ddrbo8.woff2') format('woff2'),
-    url('//at.alicdn.com/t/font_1980695_xo26ddrbo8.woff') format('woff'),
-    url('//at.alicdn.com/t/font_1980695_xo26ddrbo8.ttf') format('truetype'),
-    url('//at.alicdn.com/t/font_1980695_xo26ddrbo8.svg#iconfont') format('svg');
+  src: url('http://at.alicdn.com/t/font_1980695_ercahpywa7u.eot');
+  src: url('http://at.alicdn.com/t/font_1980695_ercahpywa7u.eot?#iefix') format('embedded-opentype'),
+    url('http://at.alicdn.com/t/font_1980695_ercahpywa7u.woff2') format('woff2'),
+    url('http://at.alicdn.com/t/font_1980695_ercahpywa7u.woff') format('woff'),
+    url('http://at.alicdn.com/t/font_1980695_ercahpywa7u.ttf') format('truetype'),
+    url('http://at.alicdn.com/t/font_1980695_ercahpywa7u.svg#iconfont') format('svg');
 }
 
 .iconfont {

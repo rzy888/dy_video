@@ -1,18 +1,20 @@
 <template>
   <div class="info">
-    <div class="author">@祝晓涵</div>
-    <div class="title">视频标题</div>
+    <div class="author">@{{videoList.name}}</div>
+    <div class="title">{{videoList.title}}</div>
     <div class="bgm-name">
       <img src="../assets/img/dy_logo_sm.png" alt />
       <div>
-        <span data-text="祝晓涵的作品原声">祝晓涵的作品原声</span>
+        <span :data-text="videoList.name+'的作品原声'">{{videoList.name}}的作品原声</span>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-export default {}
+export default {
+  props: ["videoList"],
+};
 </script>
 
 <style lang="scss">

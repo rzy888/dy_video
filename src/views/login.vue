@@ -1,11 +1,10 @@
 <template>
   <div class="login">
     <!-- 手机号登录 -->
-    <div v-if="ispwd ==1">
+    <div v-if="ispwd == 1">
       <!-- 头部 -->
       <div class="top">
         <span @click="goBack">返回</span>
-        <span>帮助</span>
       </div>
       <div class="content">
         <!-- 标题 -->
@@ -29,7 +28,7 @@
               </select>
             </div>
             <input
-              type="number"
+              type="text"
               v-model="phone"
               oninput="if(value.length > 11)value = value.slice(0, 11)"
               onkeypress="return(/[\d\.]/.test(String.fromCharCode(event.keyCode)))"
@@ -42,9 +41,9 @@
               style="fontSize:50%;line-height: 40px;margin-right:10px"
             >&#xe64f;</i>
           </div>
-          <div>{{msg}}</div>
+          <div>{{ msg }}</div>
           <div>未注册的手机号验证通过后将自动注册</div>
-          <button :class="isCode?'iscode':''" :disabled="isDisable" @click="getCode">获取短信验证码</button>
+          <button :class="isCode ? 'iscode' : ''" :disabled="isDisable" @click="getCode">获取短信验证码</button>
           <div>
             <span @click="ispwd = 2">密码登录</span>
             <span @click="qita = true">其他方式登录</span>
@@ -56,9 +55,8 @@
     <div v-else-if="ispwd == 2">
       <!-- 头部 -->
       <div class="top">
-        <span @click="ispwd = 1">
-          <i class="iconfont">&#xe604;</i>
-        </span>
+        <i @click="ispwd = 1" class="iconfont">&#xe604;</i>
+        <span @click="help">帮助</span>
       </div>
       <div class="content">
         <!-- 标题 -->
@@ -77,7 +75,7 @@
               </select>
             </div>
             <input
-              type="number"
+              type="text"
               v-model="phone"
               oninput="if(value.length > 11)value = value.slice(0, 11)"
               onkeypress="return(/[\d\.]/.test(String.fromCharCode(event.keyCode)))"
@@ -90,7 +88,7 @@
               style="fontSize:50%;line-height: 40px;margin-right:10px"
             >&#xe64f;</i>
           </div>
-          <div>{{msg}}</div>
+          <div>{{ msg }}</div>
           <div class="pwd">
             <input type="password" class="input-pwd" v-model="password" placeholder="请输入密码" />
             <i
@@ -100,7 +98,7 @@
               style="fontSize:50%;line-height: 40px;margin-right:10px"
             >&#xe64f;</i>
           </div>
-          <div>{{pwdMsg}}</div>
+          <div>{{ pwdMsg }}</div>
           <p style="margin-bottom:10px">
             <span class="radio">
               <i class="iconfont">&#xe603;</i>
@@ -109,11 +107,82 @@
             <span>用户协议</span> 和
             <span>隐私政策</span>
           </p>
-          <button :class="isCode?'iscode':''" :disabled="isDisable" @click="login">登录</button>
+          <button :class="isCode ? 'iscode' : ''" :disabled="isDisable" @click="login">登录</button>
           <div>
-            忘记了？
-            <span>找回密码</span>
+            <span @click="ispwd = 3">找回密码</span>
+            <span @click="ispwd = 3">立即注册</span>
           </div>
+        </div>
+      </div>
+    </div>
+    <!-- 立即注册并登录 -->
+    <div v-else-if="ispwd == 3">
+      <!-- 头部 -->
+      <div class="top">
+        <span @click="ispwd = 1">
+          <i class="iconfont">&#xe604;</i>
+        </span>
+      </div>
+      <div class="content">
+        <!-- 标题 -->
+        <div>
+          <h3>手机号注册并自动登录</h3>
+        </div>
+        <!-- form表单 -->
+        <div class="form">
+          <div>
+            <div>
+              <select>
+                <option value="86">+86</option>
+                <option value="87">+87</option>
+                <option value="88">+88</option>
+                <option value="89">+89</option>
+              </select>
+            </div>
+            <input
+              type="text"
+              v-model="phone"
+              oninput="if(value.length > 11)value = value.slice(0, 11)"
+              onkeypress="return(/[\d\.]/.test(String.fromCharCode(event.keyCode)))"
+              placeholder="请输入手机号"
+            />
+            <i
+              v-if="isClose"
+              @click="closePhone"
+              class="iconfont"
+              style="fontSize:50%;line-height: 40px;margin-right:10px"
+            >&#xe64f;</i>
+          </div>
+          <div>{{ msg }}</div>
+          <div class="pwd">
+            <input type="password" class="input-pwd" v-model="password" placeholder="请输入密码" />
+            <i
+              v-if="isPwdClose"
+              @click="password = ''"
+              class="iconfont"
+              style="fontSize:50%;line-height: 40px;margin-right:10px"
+            >&#xe64f;</i>
+          </div>
+          <div>{{ pwdMsg }}</div>
+          <div class="pwd">
+            <input type="password" class="input-pwd" v-model="againPassword" placeholder="确认密码" />
+            <i
+              v-if="isPwdClose"
+              @click="againPassword = ''"
+              class="iconfont"
+              style="fontSize:50%;line-height: 40px;margin-right:10px"
+            >&#xe64f;</i>
+          </div>
+          <div>{{ pwdMsg2 }}</div>
+          <p style="margin-bottom:10px">
+            <span class="radio">
+              <i class="iconfont">&#xe603;</i>
+            </span>
+            我已阅读并同意 抖音
+            <span>用户协议</span> 和
+            <span>隐私政策</span>
+          </p>
+          <button :class="isCode ? 'iscode' : ''" :disabled="isDisable" @click="regAndLogin">注册并登录</button>
         </div>
       </div>
     </div>
@@ -121,30 +190,30 @@
     <div v-else>
       <!-- 头部 -->
       <div class="top">
-        <span>返回</span>
+        <span @click="ispwd = 1">返回</span>
       </div>
       <div class="content">
         <!-- 标题 -->
         <div>
           <h3>请输入验证码</h3>
-          <p>验证码已通过短信发送至 +{{region}} {{phone}}</p>
+          <p>验证码已通过短信发送至 +{{ region }} {{ phone }}</p>
         </div>
         <!-- form表单 -->
         <div class="form">
           <div>
             <input
-              type="number"
+              type="text"
               v-model="code"
               oninput="if(value.length > 4)value = value.slice(0, 4)"
               onkeypress="return(/[\d\.]/.test(String.fromCharCode(event.keyCode)))"
               placeholder="请输入验证码"
             />
-            <span v-show="isTime" class="time">{{time}}</span>
+            <span v-show="isTime" class="time">{{ time }}</span>
           </div>
-          <div>{{codeMsg}}</div>
+          <div>{{ codeMsg }}</div>
           <button
             style="margin-top:10px"
-            :class="isCodeLogin?'iscode':''"
+            :class="isCodeLogin ? 'iscode' : ''"
             :disabled="isDisableLogin"
             @click="codeLogin"
           >登录</button>
@@ -155,19 +224,18 @@
     <transition name="up">
       <div class="qita" v-if="qita">
         <ul>
-          <li>
+          <li @click="help">
             <img src="../assets/img/tout.png" alt />今日头条登录
           </li>
-          <li>
+          <li @click="help">
             <img src="../assets/img/wx.png" alt />
             <span>微信登录</span>
           </li>
-          <li>
+          <li @click="help">
             <img src="../assets/img/qq.png" alt />
             <span>QQ登录</span>
           </li>
-
-          <li>
+          <li @click="help">
             <img src="../assets/img/wb.png" alt />
             <span>微博登录</span>
           </li>
@@ -181,6 +249,7 @@
 </template>
 
 <script>
+import { MessageBox, Toast } from "mint-ui";
 export default {
   data() {
     return {
@@ -188,6 +257,8 @@ export default {
       phone: null,
       // 密码
       password: "",
+      // 再次输入密码
+      againPassword: "",
       // 提交按钮颜色
       isCode: false,
       // 是否禁用提交按钮
@@ -196,6 +267,8 @@ export default {
       msg: "",
       // 输入密码提示消息
       pwdMsg: "",
+      // 再次输入密码提示
+      pwdMsg2: "",
       // 控制手机号和验证码或者密码登录显示与否
       ispwd: 1,
       // 是否显示其他登录方式
@@ -278,10 +351,13 @@ export default {
         this.msg = "手机号错误，请重新填写";
       } else {
         // 显示输入验证码
-        this.ispwd = 3;
+        this.ispwd = 4;
         // 开始倒计时
         var timer = setInterval(() => {
           this.time--;
+          if (this.time == 58) {
+            MessageBox("验证码提示", "1234");
+          }
           if (this.time <= 0) {
             this.time = 60;
             this.isTime = false;
@@ -295,33 +371,59 @@ export default {
       this.phone = "";
       this.isCode = false;
     },
-    // 点击登录
-    login() {
+    // 注册登录
+    regAndLogin() {
       if (!this.isPhone) {
         this.msg = "手机号错误，请重新填写";
-      } else if (this.password != 1234) {
-        this.pwdMsg = "请输入正确的密码";
+      } else if (!this.password) {
+        this.pwdMsg = "请输入密码";
+      } else if (this.password != this.againPassword) {
+        this.pwdMsg2 = "两次密码不一致";
       } else {
+        this.pwdMsg2 = "";
+        // 跳转首页
         this.$router.push("/index");
-        window.location.reload();
+        // 存储uname
         window.localStorage.setItem("uname", this.phone);
+        window.localStorage.setItem("upwd", this.password);
+        // 获取用户信息
+        this.$store.dispatch("getMyInfo");
+      }
+    },
+    // 点击登录
+    login() {
+      if (!this.isPhone || this.phone != window.localStorage.getItem("uname")) {
+        this.msg = "手机号错误，请重新填写";
+      } else if (this.password != window.localStorage.getItem("upwd")) {
+        this.pwdMsg = "密码错误";
+      } else {
+        // 跳转首页
+        this.$router.push("/index");
+        // 存储uname
+        window.localStorage.setItem("uname", this.phone);
+        // 获取用户信息
+        this.$store.dispatch("getMyInfo");
       }
     },
     // 验证码登录
     codeLogin() {
       if (this.code == 1234) {
+        // 跳转首页
         this.$router.push("/index");
-        window.location.reload();
+        // 存储uname
         window.localStorage.setItem("uname", this.phone);
+        // 获取用户信息
+        this.$store.dispatch("getMyInfo");
       } else {
         this.codeMsg = "验证码错误";
       }
     },
     //返回
     goBack() {
-      this.$router.push("/index");
-      window.location.reload();
-      // history.go(-1)
+      history.go(-1);
+    },
+    help() {
+      Toast("请注册或者验证码登录");
     },
   },
 };
@@ -398,7 +500,11 @@ export default {
           width: 50px;
           padding: 0 10px;
           select {
+            -moz-appearance: none;
             background-color: #eee;
+            &::-ms-expand {
+              display: none;
+            }
           }
         }
       }
@@ -413,6 +519,11 @@ export default {
         margin: 10px 0;
       }
       div:nth-child(4) {
+        font-size: 80%;
+        color: #fd0808f6;
+        margin: 5px 0;
+      }
+      div:nth-child(6) {
         font-size: 80%;
         color: #fd0808f6;
         margin: 5px 0;
@@ -457,6 +568,8 @@ export default {
         color: #4343a5;
       }
       div:nth-child(7) {
+        display: flex;
+        justify-content: space-between;
         font-size: 80%;
         span {
           color: #4343a5;
@@ -509,4 +622,5 @@ export default {
     opacity: 1;
   }
 }
-</style>>
+</style
+>>

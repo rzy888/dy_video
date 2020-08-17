@@ -2,7 +2,7 @@
   <div class="comment">
     <!-- 顶部文字和关闭 -->
     <div class="top">
-      <h5>10.4w 条评论</h5>
+      <h5>{{list.length}} 条评论</h5>
       <span @click="closeComment">x</span>
     </div>
     <!-- 评论内容主体 -->
@@ -14,26 +14,25 @@
             <img src="../assets/logo.png" alt />
           </div>
           <!-- 评论内容 -->
-          <div>
+          <div @click="submitReply(index)">
             <span>{{ item.user }}</span>
             <p>
-              这是第{{ item.id }}条评论内容这是第{{ item.id }}条评论内容这是第{{ item.id }}条评论内容
-              <span
-                class="time"
-              >12分钟前</span>
+              {{ item.commentValue}}
+              <span class="time">{{item.time}}分钟前</span>
             </p>
           </div>
           <!-- 评论点赞 -->
-          <div>
-            <img src="../assets/img/love2.png" alt />
-            <div>10</div>
+          <div @click="commentZan(index)">
+            <img v-if="!item.isLove" src="../assets/img/love2.png" alt />
+            <img v-else src="../assets/img/love1.png" alt />
+            <div>{{item.zan}}</div>
           </div>
         </li>
         <!-- 评论回复 -->
         <transition name="slide-fade">
-          <div v-if="showReply" class="reply">
+          <div v-if="item.showReply" class="reply">
             <div class="reply-content">
-              <ul class="reply-item" v-for="(item2, index) in item.reply" :key="index">
+              <ul class="reply-item" v-for="(item2, index2) in item.reply" :key="index2">
                 <li>
                   <!-- 回复人头像 -->
                   <div>
@@ -41,32 +40,36 @@
                   </div>
                   <!-- 回复内容 -->
                   <div>
-                    <span>{{ item2.user }}</span>
+                    <span @click="replyUser(index,index2)">{{ item2.user }}</span>
                     <p>
-                      这是第{{ item2.id }}条回复内容这是第{{ item2.id }}条回复
-                      <span class="time">12分钟前</span>
+                      {{ item2.replyValue }}
+                      <span class="time">{{item2.time}}分钟前</span>
                     </p>
                   </div>
                   <!-- 回复点赞 -->
-                  <div>
-                    <img src="../assets/img/love2.png" alt />
-                    <div>1</div>
+                  <div @click="replyZan(index,index2)">
+                    <img v-if="!item2.isLove" src="../assets/img/love2.png" alt />
+                    <img v-else src="../assets/img/love1.png" alt />
+                    <div>{{item2.zan}}</div>
                   </div>
                 </li>
               </ul>
             </div>
           </div>
         </transition>
-        <div v-if="item.reply" @click="replyAll" class="reply-all">---{{ zhankai }}</div>
+        <div v-if="item.reply.length !=0" @click="replyAll(index)" class="reply-all">
+          <span v-if="!item.showReply">---展开更多回复></span>
+          <span v-else>---收起</span>
+        </div>
       </ul>
       <div>暂时没有更多了</div>
     </div>
     <!-- 输入评论 -->
     <div class="my-comment">
-      <input type="text" placeholder="留下你的精彩评论吧" />
+      <input type="text" v-model="commentValue" placeholder="留下你的精彩评论吧" />
       <div>
-        <span>@</span>
-        <span>确定</span>
+        <span @click="commentValue = ''">清空</span>
+        <span @click="submitComment">发送</span>
       </div>
     </div>
   </div>
@@ -81,61 +84,150 @@ export default {
     return {
       list: [
         {
-          id: 1,
           user: "用户100158",
+          commentValue: "这一条评论",
+          zan: 20,
+          time: "10",
+          isLove: false,
+          showReply: false,
           reply: [
             {
-              id: 1,
               user: "用户20158",
+              replyValue: "这一条回复",
+              zan: 2,
+              time: "40",
+              isLove: false,
             },
             {
-              id: 2,
               user: "用户1031258",
+              replyValue: "这一条回复",
+              time: "50",
+              isLove: false,
+              zan: 0,
             },
             {
-              id: 3,
               user: "用户10012",
+              replyValue: "这一条回复",
+              isLove: false,
+              time: "50",
+              zan: 0,
             },
           ],
         },
         {
-          id: 2,
           user: "用户100148",
+          commentValue: "这一条评论",
+          time: "10",
+          isLove: false,
+          zan: 0,
+          reply: [],
+          showReply: false,
         },
         {
           id: 3,
           user: "用户104458",
+          commentValue: "这一条评论",
+          isLove: false,
+          time: "10",
+          zan: 0,
+          showReply: false,
+          reply: [],
         },
         {
-          id: 4,
           user: "用户10358",
+          commentValue: "这一条评论",
+          time: "20",
+          isLove: false,
+          zan: 0,
+          showReply: false,
+          reply: [],
         },
         {
-          id: 5,
           user: "用户105258",
-        },
-        {
-          id: 6,
-          user: "用户105558",
-        },
-        {
-          id: 7,
-          user: "用户104458",
+          commentValue: "这一条评论",
+          time: "30",
+          isLove: false,
+          zan: 0,
+          showReply: false,
+          reply: [],
         },
       ],
-      zhankai: "展开更多回复>",
-      showReply: false,
+      commentValue: "",
+      uname: this.$store.state.myInfo.name || "匿名用户",
+      index: 0,
+      isReply: false,
     };
   },
   methods: {
-    // 展开收起所有回复
-    replyAll() {
-      this.showReply = !this.showReply;
-      if (this.showReply) {
-        this.zhankai = "收起";
+    // 评论点赞和取消
+    commentZan(index) {
+      if (!this.list[index].isLove) {
+        this.list[index].zan = this.list[index].zan + 1;
+        this.list[index].isLove = true;
       } else {
-        this.zhankai = "展开更多回复>";
+        this.list[index].zan = this.list[index].zan - 1;
+        this.list[index].isLove = false;
       }
+    },
+    // 回复点赞和取消
+    replyZan(index, index2) {
+      if (!this.list[index].reply[index2].isLove) {
+        this.list[index].reply[index2].zan =
+          this.list[index].reply[index2].zan + 1;
+        this.list[index].reply[index2].isLove = true;
+      } else {
+        this.list[index].reply[index2].zan =
+          this.list[index].reply[index2].zan - 1;
+        this.list[index].reply[index2].isLove = false;
+      }
+    },
+    //提交评论和回复
+    submitComment() {
+      // 添加回复
+      if (this.isReply) {
+        this.isReply = false;
+        this.list[this.index].reply = [
+          {
+            user: this.uname,
+            replyValue: this.commentValue,
+            time: "1",
+            zan: 0,
+          },
+          ...this.list[this.index].reply,
+        ];
+      } else {
+        // 添加评论
+        this.list = [
+          {
+            user: this.uname,
+            commentValue: this.commentValue,
+            time: "1",
+            zan: 0,
+            reply: [],
+            showReply: false,
+          },
+          ...this.list,
+        ];
+      }
+      this.commentValue = "";
+      this.isReply = false;
+    },
+    // 回复
+    submitReply(index) {
+      this.commentValue = `@${this.list[index].user} `;
+      this.index = index;
+      this.isReply = true;
+      this.list[index].showReply = true;
+    },
+    // @用户
+    replyUser(index, index2) {
+      this.commentValue = `@${this.list[index].reply[index2].user} `;
+      this.index = index;
+      this.isReply = true;
+    },
+    // 展开收起所有回复
+    replyAll(index) {
+      this.list[index].showReply = !this.list[index].showReply;
     },
     // 关闭评论
     closeComment() {
@@ -148,6 +240,9 @@ export default {
 
 <style lang="scss" scoped>
 .comment {
+  position: absolute;
+  bottom: 0;
+  left: 0;
   height: 400px;
   width: 100%;
   border-top-left-radius: 10px;
@@ -288,13 +383,13 @@ export default {
   }
 }
 /* 设置持续时间和动画函数 */
-.slide-fade-enter-active,
-.slide-fade-leave-active {
-  transition: all 0.3s;
-}
-.slide-fade-enter,
-.slide-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
+// .slide-fade-enter-active,
+// .slide-fade-leave-active {
+//   transition: all 0.3s;
+// }
+// .slide-fade-enter,
+// .slide-fade-leave-to {
+//   opacity: 0;
+//   transform: translateY(-10px);
+// }
 </style>
